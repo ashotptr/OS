@@ -1,5 +1,7 @@
 1)basics_of_pointers
-
+/////////////////////////////
+Code
+/////////////////////////////
 #include <stdio.h>
 
 int main()
@@ -16,9 +18,23 @@ int main()
 
     return 0;
 }
+/////////////////////////////
+Report
+/////////////////////////////
+We declare integer variable "a" and initialize it to value 1, declare "b", which is a pointer to the memory address of the "a". We can get address of "a" via "&" sign, and declare a pointer via "*" sign. To get the value from a memory address using pointers, we can dereference a pointer via "*" sign and we can modify or print the value. In the above example we assign 4 to the value at the memory address "b". 
+The result of the prints is the following:
+-----------------------------
+Address via a: 0x7ffc2b3dac8c 
+Address via b: 0x7ffc2b3dac8c
+Value via a: 4
+Value via b: 4
+-----------------------------
+The first "printf" outputs the value of "b" which is the address of "a" and separately prints address of "a" via address operator "&". Also I used %p in the string argument of the "printf" which normally expects a void pointer, but the code compiled without the cast to (void *).
 
 2)pointer_arithmetic
-
+/////////////////////////////
+Code
+/////////////////////////////
 #include <stdio.h>
 
 int main() {
@@ -44,9 +60,34 @@ int main() {
 
     return 0;
 }
+/////////////////////////////
+Report
+/////////////////////////////
+We declare and array "arr" of 5 integers and initialize it. Then we declare a pointer "ptr" and assign the address of the first element of the "arr" to it. To print the elements of the array we can use the address of the first element of "arr" and increment the address number by a certain amount to get to the subsequent element. In c we can add 1 to the address and it will figure out how much it should increment the address to get to the next item depending on the type of the array. In our case we get addresses of the array items and dereference them to get the values and print them. By getting values we can also modify them, and we do that in the subsequent for loop. We then print the array values using two methods, the first is via incrementing addresses, the second is using c syntax for accessing elements from an array "arr[i]".
+The result of the prints is the following:
+-----------------------------
+Element at index 0: 10
+Element at index 1: 20
+Element at index 2: 30
+Element at index 3: 40
+Element at index 4: 50
+Element at index 0: 100
+Element at index 1: 200
+Element at index 2: 300
+Element at index 3: 400
+Element at index 4: 500
+Element at index 0: 100
+Element at index 1: 200
+Element at index 2: 300
+Element at index 3: 400
+Element at index 4: 500
+-----------------------------
+The first 5 items are the ones we started with. The subsequent prints are after the modifications of the "arr" values at their corresponding addresses.
 
 3)pointers_and_functions
-
+/////////////////////////////
+Code
+/////////////////////////////
 #include <stdio.h>
 
 int swap(int* a, int* b){
@@ -66,9 +107,22 @@ int main(){
 
     return 0;
 }
+/////////////////////////////
+Report
+/////////////////////////////
+The code begins by declaring two integer variables and printing their values. Then we try to swap the values of those variables. To do that we pass their addresses to the function "swap". Function "swap" uses pointers to access the addresses passed to it. Within the function we use the variable "c" to temporarily store the value of "a", before assigning "a" to "b". And after assigning "a" to "b", we assign "b" to "c", which was the initail value of "a". We use pointers to assign values to modify the passed argument values, at their addresses. If we did not use pointers for this problem, the values of "a" and "b" would not be swapped after the function call. Becuase the function would create new variables in the memory with those values, modify them, without modifing "a" and "b". In our case after calling "swap(&a, &b)", the values should be correctly modified and we print those.
+The result of the prints is the following:
+-----------------------------
+Value of a before: 1
+Value of b before: 2Value of a after: 2
+Value of b after: 1
+-----------------------------
+The output shows the values of "a" and "b" were swapped.
 
 4)pointers_to_pointers
-
+/////////////////////////////
+Code
+/////////////////////////////
 #include <stdio.h>
 
 int main() {
@@ -82,9 +136,20 @@ int main() {
     
     return 0;
 }
+/////////////////////////////
+Report
+/////////////////////////////
+We declare a "a", a pointer to it "ptra", and a pointer to "ptra" using "**" sign. We could declare another pointer that would point to "ptrptra" and for that we should use "***", when declaring it. To get the value of "a" using the double pointer we can dereference it two times using "**". First * gets the value of the pointer to "a", which represents its address, and the second * dereferences "ptra" and we get the value of "a".
+The result of the prints is the following:
+-----------------------------
+Value of a using ptra: 1
+Value of a using ptrptra: 1
+-----------------------------
 
-5)strings_and_character_pointers
-
+5)strings_and_character_pointersa
+/////////////////////////////
+Code
+/////////////////////////////
 #include <stdio.h>
 
 int main() {
@@ -109,3 +174,16 @@ int main() {
 
     return 0;
 }
+/////////////////////////////
+Report
+/////////////////////////////
+We declare a string "str", and assign it to "Hello". C adds '\0' symbol at the end of the string automatocally to mark the end of the string. We declare "ptr", which contains the address of the first character of the string. In the first while loop we print the characters of the string, by incrementing the addresses and dereferncing, also we use '\0' symbol to check if we reached the end of the string. After the loop we reset the address of the pointer to the first character address. Using the same technique we count the number of iterations it takes to reach the end of the string and keep the value in the "count" variable.
+The result of the prints is the following:
+-----------------------------
+H
+e
+l
+l
+o
+Number of characters: 5
+-----------------------------
