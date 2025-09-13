@@ -19,6 +19,7 @@ int main()
         printf("Fork 1 Child -> My PID is %d, my parent is %d\n", getpid(), getppid());
     } else {
         printf("Fork 1 Parent -> My PID is %d, I created child %d\n", getpid(), pid1);
+	wait(NULL);
     }
 
     pid_t pid2 = fork();
@@ -31,6 +32,7 @@ int main()
         printf("Fork 2 Child -> My PID is %d, my parent is %d\n", getpid(), getppid());
     } else {
         printf("Fork 2 Parent -> My PID is %d, I created child %d\n", getpid(), pid2);
+	wait(NULL);
     }
 
     pid_t pid3 = fork();
@@ -43,9 +45,8 @@ int main()
         printf("Fork 3 Child -> My PID is %d, my parent is %d\n", getpid(), getppid());
     } else {
         printf("Fork 3 Parent -> My PID is %d, I created child %d\n", getpid(), pid3);
+	wait(NULL);
     }
-
-    wait(NULL);
 
     return 0;
 }
