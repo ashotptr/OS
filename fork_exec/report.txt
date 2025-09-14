@@ -1,0 +1,244 @@
+1)multiple_fork
+/////////////////////////////
+Code
+/////////////////////////////
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+
+int main()
+{
+    printf("Starting Program -> PID: %d\n", getpid());
+    printf("----------------------------------\n");
+
+    pid_t pid1 = fork();
+    if (pid1 < 0) {
+        perror("fork 1 failed");
+        exit(1);
+    }
+
+    if (pid1 == 0) {
+        printf("Fork 1 Child -> My PID is %d, my parent is %d\n", getpid(), getppid());
+    } else {
+        printf("Fork 1 Parent -> My PID is %d, I created child %d\n", getpid(), pid1);
+	    wait(NULL);
+    }
+
+    pid_t pid2 = fork();
+    if (pid2 < 0) {
+        perror("fork 2 failed");
+        exit(1);
+    }
+
+    if (pid2 == 0) {
+        printf("Fork 2 Child -> My PID is %d, my parent is %d\n", getpid(), getppid());
+    } else {
+        printf("Fork 2 Parent -> My PID is %d, I created child %d\n", getpid(), pid2);
+	    wait(NULL);
+    }
+
+    pid_t pid3 = fork();
+    if (pid3 < 0) {
+        perror("fork 3 failed");
+        exit(1);
+    }
+
+    if (pid3 == 0) {
+        printf("Fork 3 Child -> My PID is %d, my parent is %d\n", getpid(), getppid());
+    } else {
+        printf("Fork 3 Parent -> My PID is %d, I created child %d\n", getpid(), pid3);
+	    wait(NULL);
+    }
+
+    return 0;
+}
+/////////////////////////////
+Report
+/////////////////////////////
+
+
+2)simple_fork_exec
+/////////////////////////////
+Code
+/////////////////////////////
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+int main()
+{
+    pid_t pid = fork();
+
+    if (pid < 0) {
+        perror("fork failed");
+        exit(1);
+    }
+    else if (pid == 0) {
+        printf("Child process is running the 'ls -l' command...\n");
+        printf("--------------------------------------------------\n");
+
+        execl("/bin/ls", "ls", "-l", NULL);
+
+        perror("execl failed");
+        exit(1);
+    }
+    else {
+        wait(NULL);
+
+        printf("--------------------------------------------------\n");
+        printf("Parent process: Child has finished.\n");
+    }
+
+    return 0;
+}
+/////////////////////////////
+Report
+/////////////////////////////
+
+3)multiple_fork_exec
+/////////////////////////////
+Code
+/////////////////////////////
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+int main()
+{
+    pid_t pid1, pid2;
+
+    printf("Parent starting...\n\n");
+
+    pid1 = fork();
+
+    if (pid1 < 0) {
+        perror("fork 1 failed");
+        exit(1);
+    }
+
+    if (pid1 == 0) {
+        printf("Child 1 (PID: %d) is running 'ls -l'...\n", getpid());
+        printf("----------------------------------------\n");
+        execl("/bin/ls", "ls", "-l", NULL);
+
+        perror("execl for ls failed");
+        exit(1);
+    } else {
+        wait(NULL);
+        printf("----------------------------------------\n");
+        printf("Parent: Child 1 has finished.\n\n");
+    }
+
+    pid2 = fork();
+
+    if (pid2 < 0) {
+        perror("fork 2 failed");
+        exit(1);
+    }
+
+    if (pid2 == 0) {
+        printf("Child 2 (PID: %d) is running 'date'...\n", getpid());
+        printf("----------------------------------------\n");
+        execl("/bin/date", "date", NULL);
+
+        perror("execl for date failed");
+        exit(1);
+    } else {
+        wait(NULL);
+        printf("----------------------------------------\n");
+        printf("Parent: Child 2 has finished.\n\n");
+    }
+
+    printf("Parent process done.\n");
+
+    return 0;
+}
+/////////////////////////////
+Report
+/////////////////////////////
+
+4)fork_exec_arguments
+/////////////////////////////
+Code
+/////////////////////////////
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+int main()
+{
+    pid_t pid = fork();
+
+    if (pid < 0) {
+        perror("fork failed");
+        exit(1);
+    }
+    else if (pid == 0) {
+        printf("Child process executing 'echo'...\n");
+        printf("----------------------------------\n");
+
+        execl("/bin/echo", "echo", "Hello from the child process", NULL);
+
+        perror("execl failed");
+        exit(1);
+    }
+    else {
+        wait(NULL);
+
+        printf("----------------------------------\n");
+        printf("Parent process done.\n");
+    }
+
+    return 0;
+}
+/////////////////////////////
+Report
+/////////////////////////////
+
+5)fork_exec_cmd_arguments
+/////////////////////////////
+Code
+/////////////////////////////
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+int main()
+{
+    pid_t pid = fork();
+
+    if (pid < 0) {
+        perror("fork failed");
+        exit(1);
+    }
+    else if (pid == 0) {
+        printf("Child (PID: %d) is running 'grep main test.txt'...\n", getpid());
+        printf("--------------------------------------------------\n");
+
+        execl("/usr/bin/grep", "grep", "-n", "main", "test.txt", NULL);
+
+        perror("execl for grep failed");
+        exit(1);
+    }
+    else {
+        wait(NULL);
+
+        printf("--------------------------------------------------\n");
+        printf("Parent process completed.\n");
+    }
+
+    return 0;
+}
+/////////////////////////////
+Report
+/////////////////////////////

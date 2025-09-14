@@ -13,10 +13,10 @@ int main()
         exit(1);
     }
     else if (pid == 0) {
-        printf("Child process is running the 'ls -l' command...\n");
+        printf("Child process is running the 'ls' command...\n");
         printf("--------------------------------------------------\n");
 
-        execl("/bin/ls", "ls", "-l", NULL);
+        execl("/bin/ls", "ls", NULL);
 
         perror("execl failed");
         exit(1);

@@ -18,9 +18,9 @@ int main()
     }
 
     if (pid1 == 0) {
-        printf("Child 1 (PID: %d) is running 'ls -l'...\n", getpid());
+        printf("Child 1 (PID: %d) is running 'ls' ...\n", getpid());
         printf("----------------------------------------\n");
-        execl("/bin/ls", "ls", "-l", NULL);
+        execl("/bin/ls", "ls", NULL);
 
         perror("execl for ls failed");
         exit(1);
