@@ -57,7 +57,36 @@ int main()
 /////////////////////////////
 Report
 /////////////////////////////
-
+We print the process id of the starting program. 
+Then do "fork", which creates a new child process, which is duplicate of the parent, except of its process id. 
+The "fork" call produces process id, it is 0 for a child process, smaller that 0 when the fork call was not successful, and for the parent process it is the process id of the newly created child.
+For a child process we print its and its parent process's id.
+For a parent process we print its id and child's id, which is "pid1", and use "wait" to wait untill child process finishes execution and get to zombie state.
+After child porcess's execution end, the parent process will continue its execution.
+For the second fork the child process with process id of "pid1" becomes a parent process for a new child process with pid of "pid2".
+And in this way process tree is being created where each process creates two new, and each one of those two create two new each as well.
+This happens three times.
+The result of the prints is the following:
+-----------------------------
+Starting Program -> PID: 143540
+----------------------------------
+Fork 1 Parent -> My PID is 143540, I created child 143541
+Fork 1 Child -> My PID is 143541, my parent is 143540
+Fork 2 Parent -> My PID is 143541, I created child 143542
+Fork 2 Child -> My PID is 143542, my parent is 143541
+Fork 3 Parent -> My PID is 143542, I created child 143543
+Fork 3 Child -> My PID is 143543, my parent is 143542
+Fork 3 Parent -> My PID is 143541, I created child 143544
+Fork 3 Child -> My PID is 143544, my parent is 143541
+Fork 2 Parent -> My PID is 143540, I created child 143545
+Fork 2 Child -> My PID is 143545, my parent is 143540
+Fork 3 Parent -> My PID is 143545, I created child 143546
+Fork 3 Child -> My PID is 143546, my parent is 143545
+Fork 3 Parent -> My PID is 143540, I created child 143547
+Fork 3 Child -> My PID is 143547, my parent is 143540
+-----------------------------
+We can see that overall 7 new processes were created, and it makes total of 8 processes.
+This is because number of process and number of forks have the following relationship: process_num = 2 ^ fork_num, (when forks were all successful) 
 
 2)simple_fork_exec
 /////////////////////////////
@@ -78,10 +107,10 @@ int main()
         exit(1);
     }
     else if (pid == 0) {
-        printf("Child process is running the 'ls -l' command...\n");
+        printf("Child process is running the 'ls' command...\n");
         printf("--------------------------------------------------\n");
 
-        execl("/bin/ls", "ls", "-l", NULL);
+        execl("/bin/ls", "ls", NULL);
 
         perror("execl failed");
         exit(1);
@@ -98,6 +127,20 @@ int main()
 /////////////////////////////
 Report
 /////////////////////////////
+We start by forking and creating a new process, check for the case when it failed, print a message and exit with code 1 which indicates failure in the execution of the program.
+For the child case when "pid" is 0, we print some text, and call execl, which replaces the current process image with a new one, and keeps "pid".
+In this case the new program is "ls" which is located in "/bin/ls". And NULL tells that it is the end of argument list.
+"perror" and "exit" will happen if something went wrong in "execl", and will make the process exit with a code 1.
+For the parent process we wait untli child process completes and goes into zombie state and then print the text.
+The result of the prints is the following:
+-----------------------------
+Child process is running the 'ls' command...
+--------------------------------------------------
+simple_fork_exec  simple_fork_exec.c
+--------------------------------------------------
+Parent process: Child has finished.
+-----------------------------
+We ran "ls" as a child process and it showed the contents of the current directory. After it completed we saw parent's message.
 
 3)multiple_fork_exec
 /////////////////////////////
@@ -123,9 +166,9 @@ int main()
     }
 
     if (pid1 == 0) {
-        printf("Child 1 (PID: %d) is running 'ls -l'...\n", getpid());
+        printf("Child 1 (PID: %d) is running 'ls'...\n", getpid());
         printf("----------------------------------------\n");
-        execl("/bin/ls", "ls", "-l", NULL);
+        execl("/bin/ls", "ls", NULL);
 
         perror("execl for ls failed");
         exit(1);
@@ -162,6 +205,32 @@ int main()
 /////////////////////////////
 Report
 /////////////////////////////
+We call fork create a new process.
+In the child child process we call "execl" for calling "ls". In the parent we wait for it to complete.
+We do second fork call, which happens only in the parent process, because the child process was changed to "ls".
+In the child process that was created from that fork call, we change its process image to a "date" program's one.
+In the parent process we wait for the completeion of the "date" program.
+And at the end print after the completeion of child processes.
+The result of the prints is the following:
+-----------------------------
+Parent starting...
+
+Child 1 (PID: 145678) is running 'ls' ...
+----------------------------------------
+multiple_fork_exec  multiple_fork_exec.c
+----------------------------------------
+Parent: Child 1 has finished.
+
+Child 2 (PID: 145679) is running 'date'...
+----------------------------------------
+Sun Sep 14 12:33:32 UTC 2025
+----------------------------------------
+Parent: Child 2 has finished.
+
+Parent process done.
+-----------------------------
+"ls" printed contents of the directory, "date" printed the current date.
+When two processes finished parent printed that it is done.
 
 4)fork_exec_arguments
 /////////////////////////////
@@ -202,6 +271,19 @@ int main()
 /////////////////////////////
 Report
 /////////////////////////////
+We do fork, craeting a new process. Check for a failed "fork" exit with 1 code.
+In the child process we replace it with "echo", which is located in "/bin/echo", using "execl". We also pass "Hello from the child process" as its first argument, and pass NULL to the "execl" as its last argument to indicate the end of argument list.
+We also do "perror" for the case when "execl" fails.
+The parent process waits for the child's execution and prints the message.
+The result of the prints is the following:
+-----------------------------
+Child process executing 'echo'...
+----------------------------------
+Hello from the child process
+----------------------------------
+Parent process done.
+-----------------------------
+"echo" printed, what was given to it as an argument.
 
 5)fork_exec_cmd_arguments
 /////////////////////////////
@@ -242,3 +324,21 @@ int main()
 /////////////////////////////
 Report
 /////////////////////////////
+We do fork.
+In the child process we call "execl", which replaces the current process image with the grep's one, which is loacted in "/usr/bin/grep".
+We pass three arguments: "-n" for sowing lines, "main" as the keyword that will be searched, "test.txt" is the file where the "main" will be searched, NULL indicates the end of argument list.
+"perror" and "exit" are for the case when execl fails.
+Parent waits for the end of execution of the child and prints the message.
+The result of the prints is the following:
+-----------------------------
+Child (PID: 146150) is running 'grep main test.txt'...
+--------------------------------------------------
+2:main
+6:main
+7:main
+8:main
+9:main
+--------------------------------------------------
+Parent process completed.
+-----------------------------
+"grep" command found 5 occourences of "main" and showed them with lines they were loacted.
