@@ -1,0 +1,16 @@
+4.
+Object Files (main.o, math_utils.o) are compiled machine code for a single source file, but they are not yet a complete, runnable program.
+The objdump output for main.o has a call to the square function that doesn't point anywhere meaningful yet.
+18: e8 00 00 00 00   call   1d <main+0x1d>
+The linker's job is to replace 00 00 00 00 with the real address of the square function.
+Also there is no entry point, object files have no concept of a program starting point. There is no _start code, which is required to begin execution.
+
+The final executable is the result of the linker combining all the object files and linking them with necessary libraries.
+It's a complete, self-contained, and runnable program.
+The objdump output for square_prog shows that the linker has filled in the placeholder. 
+The call instruction in main now points to the exact, final virtual memory address of the square function.
+1161: e8 26 00 00 00   call   118c <square>
+Also there is _start: which is the entry point of the program that the operating system kernel jumps to. This code sets up the environment and then calls the main function.
+
+5.
+
