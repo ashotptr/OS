@@ -530,3 +530,97 @@ It shows the final virtual memory address where the code will live when the prog
 
 .rodata, .data, .bss have also been combined from all object files and given final memory addresses.
 //////////////////////////////////////////////////////////////
+6)
+//////////////////////////////////////////////////////////////
+The nm output shows the symbols in the file.
+
+In main.o:
+
+For "T main" the symbol main is defined (T) in this file's text section. 
+Its address is 0000000000000000, but it is relocatable and the final memory location is unknown.
+
+For "U printf/U square" the symbols printf and square are undefined (U). 
+The code in main.c calls these functions, but their definitions are not in this file. 
+It is the linker's job to find them.
+
+
+In math_utils.o:
+
+For "T square" the symbol square is defined (T) here. 
+This provides the definition that main.o was missing.
+
+
+In the square_prog Executable:
+
+For "T main/T square" both symbols are now defined and have been assigned final virtual memory addresses (0000000000001149 and 000000000000118c). 
+The linker has placed the code from both object files into a single layout.
+
+For "U printf@GLIBC_2.2.5" the printf symbol is still marked as undefined, but it has been resolved for dynamic linking. 
+The @GLIBC_2.2.5 indicates that the linker has set up a placeholder (in the Procedure Linkage Table) so that the actual address of printf from the shared C library will be looked up by the dynamic loader when the program is run.
+
+There are also new symbols (_start, _init, _fini). 
+The executable contains many new symbols not present in our object files. 
+But the most important is _start, which is the entry point of the program. 
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+For .o files the objdump -d command disassembles the .text (executable code) section, showing us raw machine instructions and assembly code. 
+
+In main.o, the disassembly shows that the compiler has generated the machine code for the main function, but it doesn't know the final memory addresses for the functions it needs to call. 
+18:   e8 00 00 00 00          call   1d <main+0x1d>
+37:   e8 00 00 00 00          call   3c <main+0x3c>
+The instructions to call the square function and printf function have a placeholder offset of all zeros (00 00 00 00).
+
+The disassembly of the final square_prog executable shows that the linker has completed its work and shows the final address.
+
+0000000000001149 <main>:
+1161:       e8 26 00 00 00          call   118c <square>
+1180:       e8 cb fe ff ff          call   1050 <printf@plt>
+000000000000118c <square>:
+
+Also the .text sections from main.o and math_utils.o have been combined. 
+We can now see the complete machine code for both the main function and the square function within the same disassembly.
+The linker has replaced the placeholder (00 00 00 00) with a specific, calculated offset (26 00 00 00).
+
+The call to printf has also been relocated. 
+It now points to an address within the Procedure Linkage Table (.plt). 
+This is a section created by the linker to handle calls to functions in shared libraries, which will be resolved by the dynamic linker at runtime.
+
+The executable's disassembly contains a _start section, which is the program's entry point. 
+This code is not present in the object file.
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+The readelf output shows metadatada information about object files and the executable.
+
+The object files (.o) are of type REL (Relocatable file) and have an entry point address of 0x0. 
+They are not runnable and are just a collections of code and data.
+
+The executable (square_prog) is of type DYN (Position-Independent Executable file) and has a specific entry point address (0x1060). 
+This address points to the _start code, and not our main function.
+
+
+The executable's sections (.text, .rodata, etc.) are a merged version of the sections from main.o and math_utils.o.
+
+Also object files contain relocation sections (.rela.text, etc.). 
+These sections contain the instructions for the linker. 
+In my case it specifies that the call instruction in main.o needs to be updated with the final address of the square function. 
+
+These relocation sections that exist in .o files do not exist in the final executable, because they have already served their purpose.
+But the excutable can still contain sections like .rela.dyn and .rela.plt that are used by the dynamic linker at runtime.
+The executable contains many new sections required to run the program.
+For example .interp specifies the path to the dynamic linker, .plt and .got (The Procedure Linkage Table and Global Offset Table), are used to handle calls to shared library functions like printf, etc.
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+The linking process is the final step that transforms isolated, incomplete object files into a single, runnable program.
+The linker's first job is to create a complete symbol map. 
+It reads the symbol tables of all object files and libraries, matching every undefined reference (U) in one file to a defined symbol (T or D) in another. 
+If any symbol remains undefined, the linker gives an error.
+Using the information from the relocation sections (.rela.text), it calculates the final virtual addresses for all functions and data and updates the placeholder addresses. 
+The objdump output shosw it.
+In main.o, the call is unresolved (e8 00 00 00 00          call   1d <main+0x1d>).
+And in square_prog, the linker has given it the final address of square (e8 26 00 00 00          call   118c <square>)
+The linker also combines all sections of the same type (.text sections, .data sections, etc.) into single sections in the final executable. 
+The linker also adds the C runtime startup code (_start).
+//////////////////////////////////////////////////////////////
