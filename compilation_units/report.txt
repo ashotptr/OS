@@ -253,7 +253,6 @@ Disassembly of section .fini:
 //////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////
-Explanation:
 Object Files (main.o, math_utils.o) are compiled machine code for a single source file, but they are not yet a complete, runnable program.
 The objdump output for main.o has a call to the square function that doesn't point anywhere meaningful yet.
 18: e8 00 00 00 00   call   1d <main+0x1d>
@@ -265,7 +264,7 @@ It's a complete, self-contained, and runnable program.
 The objdump output for square_prog shows that the linker has filled in the placeholder.
 The call instruction in main now points to the exact, final virtual memory address of the square function.
 1161: e8 26 00 00 00   call   118c <square>
-Also there is _start: which is the entry point of the program that the operating system kernel jumps to. This code sets up the environment and then calls the main function.
+Also there is _start: which is the entry point of the program. 
 //////////////////////////////////////////////////////////////
 
 5)
@@ -513,7 +512,7 @@ The BSS section is a placeholder, which means it doesn't take up space in the ob
 This is indicated by NOBITS.
 
 .rodata is the Read-Only Data section.
-It holds constant values, most commonly string literals.
+It holds constant values.
 In main.o, the format string "The square of %d is %d.\n" is stored here.
 
 .symtab is the Symbol Table.
