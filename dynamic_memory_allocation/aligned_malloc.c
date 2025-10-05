@@ -2,16 +2,7 @@
 #include <stdlib.h>
 
 int is_power_of_two(size_t number) {
-    if (number == 0) {
-        return 0;
-    }
-    while (number != 1) {
-        if (number % 2 != 0) {
-            return 0;
-        }
-        number = number / 2;
-    }
-    return 1;
+    return (number > 0) && ((number & (number - 1)) == 0);
 }
 
 void* aligned_malloc(size_t size, size_t alignment) {
