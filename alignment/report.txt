@@ -1,0 +1,263 @@
+1)data_alignment
+/////////////////////////////
+Code
+/////////////////////////////
+#include <stdio.h>
+
+int main() {
+    char myChar;
+    short myShort;
+    int myInt;
+    double myDouble;
+
+    printf("--- Data Type Sizes ---\n");
+    printf("Size of char:   %zu byte(s)\n", sizeof(char));
+    printf("Size of short:  %zu byte(s)\n", sizeof(short));
+    printf("Size of int:    %zu byte(s)\n", sizeof(int));
+    printf("Size of double: %zu byte(s)\n", sizeof(double));
+    printf("\n");
+
+    printf("--- Variable Memory Addresses ---\n");
+    printf("Address of myChar:   %p\n", (void *)&myChar);
+    printf("Address of myShort:  %p\n", (void *)&myShort);
+    printf("Address of myInt:    %p\n", (void *)&myInt);
+    printf("Address of myDouble: %p\n", (void *)&myDouble);
+    printf("\n");
+
+    return 0;
+}
+/////////////////////////////
+Report
+/////////////////////////////
+The result of the prints is the following:
+-----------------------------
+--- Data Type Sizes ---
+Size of char:   1 byte(s)
+Size of short:  2 byte(s)
+Size of int:    4 byte(s)
+Size of double: 8 byte(s)
+
+--- Variable Memory Addresses ---
+Address of myChar:   0x7ffed41e6839
+Address of myShort:  0x7ffed41e683a
+Address of myInt:    0x7ffed41e683c
+Address of myDouble: 0x7ffed41e6840
+-----------------------------
+myChar (1 byte) is at 0x7ffed41e6839, so it can be placed at any memory address.
+
+myShort (2 bytes) is at 0x7ffed41e683a and it starts at an address that is a multiple of 2.
+The address 0x7ffed41e683a ends in a hexadecimal 'a', which is 10 in decimal, which an even number.
+In this case no padding was needed.
+
+myInt (4 bytes) at 0x7ffed41e683c starts at an address that is a multiple of 4. 
+The address 0x7ffed41e683c ends in 'c', which is 12 in decimal, which is a multiple of 4, this is a valid aligned address.
+myShort took up addresses 0x7ffed41e683a and 0x7ffed41e683b, so the next available spot 0x7ffed41e683c is aligned for myInt.
+
+myDouble (8 bytes) at 0x7ffed41e6840 starts at an address that is a multiple of 8. 
+myInt occupied addresses 0x7ffed41e683c, 0x7ffed41e683d, 0x7ffed41e683e, and 0x7ffed41e683f. 
+The next available address is 0x7ffed41e6840, which ends in 840 and is a multiple of 8.
+
+2)struct_padding
+/////////////////////////////
+Code
+/////////////////////////////
+#include <stdio.h>
+#include <stddef.h>
+
+struct UnorderedStruct {
+    char   a;
+    int    b;
+    double c;
+};
+
+struct OrderedStruct {
+    double c;
+    int    b;
+    char   a;
+};
+
+int main() {
+    struct UnorderedStruct u_instance;
+
+    printf("--- Unordered Struct (char, int, double) ---\n");
+    printf("Size of the struct: %zu bytes\n", sizeof(struct UnorderedStruct));
+
+    printf("Address of struct instance: %p\n", (void *)&u_instance);
+    printf("Address of char 'a':        %p\n", (void *)&(u_instance.a));
+    printf("Address of int 'b':         %p\n", (void *)&(u_instance.b));
+    printf("Address of double 'c':      %p\n", (void *)&(u_instance.c));
+    printf("\n");
+
+    struct OrderedStruct o_instance;
+
+    printf("--- Ordered Struct (double, int, char) ---\n");
+    printf("Size of the struct: %zu bytes\n", sizeof(struct OrderedStruct));
+
+    printf("Address of struct instance: %p\n", (void *)&o_instance);
+    printf("Address of double 'c':      %p\n", (void *)&(o_instance.c));
+    printf("Address of int 'b':         %p\n", (void *)&(o_instance.b));
+    printf("Address of char 'a':        %p\n", (void *)&(o_instance.a));
+    printf("\n");
+
+    return 0;
+}
+/////////////////////////////
+Report
+/////////////////////////////
+The result of the prints is the following:
+-----------------------------
+--- Unordered Struct (char, int, double) ---
+Size of the struct: 16 bytes
+Address of struct instance: 0x7fff75e8f560
+Address of char 'a':        0x7fff75e8f560
+Address of int 'b':         0x7fff75e8f564
+Address of double 'c':      0x7fff75e8f568
+
+--- Ordered Struct (double, int, char) ---
+Size of the struct: 16 bytes
+Address of struct instance: 0x7fff75e8f570
+Address of double 'c':      0x7fff75e8f570
+Address of int 'b':         0x7fff75e8f578
+Address of char 'a':        0x7fff75e8f57c
+-----------------------------
+1. Does changing the order of fields reduce or increase the size of the struct? Why?
+
+Yes, changing the order of fields reduce the size of a struct, because of data alignment.
+CPUs access data most efficiently when it starts at a memory address that is a multiple of its own size. 
+For that reason the compiler inserts unused bytes between members of a struct.
+
+2. How is memory padding affecting the size of your struct?
+
+For UnorderedStruct the sum of the members is 1 + 4 + 8 = 13 bytes, but the struct's total size is 16 bytes.
+char a is at address 0x7fff75e8f560.
+The next member, int b, needs to start at an address divisible by 4.
+The next available address is 0x7fff75e8f561, which is not a multiple of 4. 
+The compiler skips 0x7fff75e8f561, 0x7fff75e8f562, and 0x7fff75e8f563, inserting 3 bytes of padding.
+int b starts at 0x7fff75e8f564, which is a multiple of 4.
+
+For OrderedStruct the total size is 16 bytes.
+double c is at 0x7fff75e8f570 uses 8 bytes.
+int b starts at 0x7fff75e8f578.
+The difference is 8 bytes and there is no padding between them.
+char a starts at 0x7fff75e8f57c.
+The difference is 4 bytes and there is no padding here.
+A struct's total size must be a multiple of its largest member's alignment 8 bytes. 
+The next multiple of 8 after 13 is 16.
+And the compiler adds 3 bytes of padding at the end of the struct, making the total size 16.
+
+3)data_alignment_pragma_pack
+/////////////////////////////
+Code
+/////////////////////////////
+#include <stdio.h>
+
+struct DefaultStruct {
+    char   a;
+    int    b;
+    double c;
+};
+
+#pragma pack(1)
+struct PackedStruct1 {
+    char   a;
+    int    b;
+    double c;
+};
+
+#pragma pack(2)
+struct PackedStruct2 {
+    char   a;
+    int    b;
+    double c;
+};
+
+#pragma pack(4)
+struct PackedStruct4 {
+    char   a;
+    int    b;
+    double c;
+};
+
+#pragma pack()
+
+int main() {
+    struct DefaultStruct d_instance;
+    printf("--- Default Alignment ---\n");
+    printf("Size of struct: %zu bytes\n", sizeof(d_instance));
+    printf("Address of char 'a':   %p\n", (void *)&(d_instance.a));
+    printf("Address of int 'b':    %p\n", (void *)&(d_instance.b));
+    printf("Address of double 'c': %p\n", (void *)&(d_instance.c));
+    printf("\n");
+
+    struct PackedStruct1 p1_instance;
+    printf("--- #pragma pack(1) ---\n");
+    printf("Size of struct: %zu bytes\n", sizeof(p1_instance));
+    printf("Address of char 'a':   %p\n", (void *)&(p1_instance.a));
+    printf("Address of int 'b':    %p\n", (void *)&(p1_instance.b));
+    printf("Address of double 'c': %p\n", (void *)&(p1_instance.c));
+    printf("\n");
+
+    struct PackedStruct2 p2_instance;
+    printf("--- #pragma pack(2) ---\n");
+    printf("Size of struct: %zu bytes\n", sizeof(p2_instance));
+    printf("Address of char 'a':   %p\n", (void *)&(p2_instance.a));
+    printf("Address of int 'b':    %p\n", (void *)&(p2_instance.b));
+    printf("Address of double 'c': %p\n", (void *)&(p2_instance.c));
+    printf("\n");
+
+    struct PackedStruct4 p4_instance;
+    printf("--- #pragma pack(4) ---\n");
+    printf("Size of struct: %zu bytes\n", sizeof(p4_instance));
+    printf("Address of char 'a':   %p\n", (void *)&(p4_instance.a));
+    printf("Address of int 'b':    %p\n", (void *)&(p4_instance.b));
+    printf("Address of double 'c': %p\n", (void *)&(p4_instance.c));
+    printf("\n");
+
+    return 0;
+}
+/////////////////////////////
+Report
+/////////////////////////////
+The result of the prints is the following:
+-----------------------------
+--- Default Alignment ---
+Size of struct: 16 bytes
+Address of char 'a':   0x7ffd07503e20
+Address of int 'b':    0x7ffd07503e24
+Address of double 'c': 0x7ffd07503e28
+
+--- #pragma pack(1) ---
+Size of struct: 13 bytes
+Address of char 'a':   0x7ffd07503e05
+Address of int 'b':    0x7ffd07503e06
+Address of double 'c': 0x7ffd07503e0a
+
+--- #pragma pack(2) ---
+Size of struct: 14 bytes
+Address of char 'a':   0x7ffd07503e12
+Address of int 'b':    0x7ffd07503e14
+Address of double 'c': 0x7ffd07503e18
+
+--- #pragma pack(4) ---
+Size of struct: 16 bytes
+Address of char 'a':   0x7ffd07503e30
+Address of int 'b':    0x7ffd07503e34
+Address of double 'c': 0x7ffd07503e38
+-----------------------------
+#pragma pack controls the memory alignment of struct members.
+Without it compiler adds padding to ensure every member starts at a memory address that is a multiple of its own size.
+
+#pragma pack(1) forces the compiler to align all members on a 1-byte boundary.
+This removes all padding.
+The int b starts after char a, and double c starts after int b.
+The total size is the sum of its members: 1 + 4 + 8 = 13 bytes.
+This saves space but can be slower.
+
+pack(2) and pack(4) set a maximum alignment boundary.
+A member is aligned on either its own natural boundary or the pack value, whichever is smaller.
+
+With pack(2), the int (4 bytes) is aligned on a 2-byte boundary and the double (8 bytes) is also limited to a 2-byte boundary.
+This requires less padding than the default but more than pack(1).
+
+With pack(4), the int (4 bytes) aligns on its natural 4-byte boundary and the double (8 bytes) is limited to a 4-byte boundary.
+The results resulting in a size of 16 bytes.
