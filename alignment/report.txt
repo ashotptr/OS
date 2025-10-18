@@ -122,7 +122,7 @@ Address of char 'a':        0x7fff75e8f57c
 -----------------------------
 1. Does changing the order of fields reduce or increase the size of the struct? Why?
 
-Yes, changing the order of fields reduce the size of a struct, because of data alignment.
+No, changing the order of fields does not affect the size of the struct in this case.
 CPUs access data most efficiently when it starts at a memory address that is a multiple of its own size. 
 For that reason the compiler inserts unused bytes between members of a struct.
 
