@@ -9,7 +9,7 @@ For each algorithm, it displays:
 
 ## How to Compile and Run
 
-1.  Clone the repository and open the directory "process_scheduling"
+1.  Clone the repository and open the directory **process_scheduling**
 2.  **Compile the C code:**
     ```bash
     gcc fcfs_sjf.c -o fcfs_sjf 
