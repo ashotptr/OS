@@ -69,3 +69,10 @@ int main() {
 
     return 0;
 }
+
+//This program creates a "sparse file."
+//When we use lseek() to skip 1 MiB, the operating system doesn't actually write 1,048,576 zero bytes to the disk.
+//Instead, the file will be padded with zeros in the filesystem.
+//This zero padding is called a "hole," and files with holes are called sparse files.
+//But those holes do not occupy any physical disk space.
+//Because of this, in disk the file takes only few bytes for "START" and "END".
