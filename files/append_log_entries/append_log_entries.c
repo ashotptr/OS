@@ -129,3 +129,6 @@ int main() {
 
     return 0;
 }
+
+//With the O_APPEND option, when writing to a file, we always start at the end, and the file pointer is positioned at the end, when we complete the write operation, the file pointer appears at the end of the file. 
+//Hence, when using SEEK_CUR, it returns the size to the end of the file in bytes.
