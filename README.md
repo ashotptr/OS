@@ -17,7 +17,7 @@ A program split across multiple translation units (`main.c`, `math_utils.c/.h`) 
 POSIX file I/O: appending log entries, byte-wise file comparison, copying, truncation, in-place overwriting, reading a file backwards, and creating **sparse files**.
 
 ### `processes/`
-The process lifecycle: `fork`, exit statuses, `wait`, `atexit` handlers, and **zombie processes** — both how to create one and how to avoid it.
+The process lifecycle: `fork`, exit statuses, `wait`, `atexit` handlers, and **zombie processes**, both how to create one and how to avoid it.
 
 ### `fork_exec/`
 Combining `fork` with `exec`: passing arguments, running shell commands, and forking multiple children.
