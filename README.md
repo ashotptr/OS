@@ -11,7 +11,7 @@ How the compiler lays out data in memory: data alignment, struct padding, and wh
 A program split across multiple translation units (`main.c`, `math_utils.c/.h`) to show how separate compilation and linking work.
 
 ### `dynamic_memory_allocation/`
-`malloc`, `calloc`, and `realloc` exercises — growing, shrinking, and initializing arrays — plus a hand-written **`my_realloc`** and an **`aligned_malloc`**.
+`malloc`, `calloc`, and `realloc` exercises, growing, shrinking, and initializing arrays, plus **`my_realloc`** and an **`aligned_malloc`** implementation.
 
 ### `files/`
 POSIX file I/O: appending log entries, byte-wise file comparison, copying, truncation, in-place overwriting, reading a file backwards, and creating **sparse files**.
