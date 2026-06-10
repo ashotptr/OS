@@ -1,5 +1,5 @@
 # **OS**
-This repository is a collection of small, self-contained **C programs** about **systems programming on Linux** — how memory, processes, threads, and files behave beneath the standard library. Each topic lives in its own directory, every program compiles on its own, and most topics include a `report.txt` with the code, its output, and observations.
+This repository is a collection of small, self-contained **C programs** about **systems programming on Linux**. Each topic lives in its own directory, every program compiles on its own, and most topics include a `report.txt` with the code, its output, and observations.
 
 ### `pointers/`
 The fundamentals: pointer arithmetic, pointers as function arguments, pointers to pointers, and strings through character pointers.
