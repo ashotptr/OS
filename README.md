@@ -34,7 +34,7 @@ Race conditions and the tools that fix them: a deliberately **broken counter** (
 ---
 
 ## Usage
-There is no build system — every program is standalone:
+There is no build system, every program is standalone:
 
 ```
 gcc program.c -o program
